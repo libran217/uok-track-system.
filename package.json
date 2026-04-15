@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "start": "node server.js",
+    "start": "node server.js"
   },
   "keywords": [],
   "author": "",
@@ -18,5 +19,13 @@
     "multer": "^2.1.1",
     "mysql": "^2.18.1",
     "mysql2": "^3.21.1"
-  }
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/libran217/uok-track-system..git"
+  },
+  "bugs": {
+    "url": "https://github.com/libran217/uok-track-system./issues"
+  },
+  "homepage": "https://github.com/libran217/uok-track-system.#readme"
 }
