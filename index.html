@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UoK Track System</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <style>
+        :root { --uok-primary: #1a8a42; --uok-accent: #f68b1e; }
+        body { background: #f4f4f4; padding-bottom: 60px; }
+        .navbar { background: white; border-bottom: 3px solid var(--uok-primary); }
+        .sidebar { position: fixed; left: -280px; top: 0; height: 100%; width: 280px; background: white; z-index: 1050; transition: 0.3s; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .sidebar.active { left: 0; }
+        .search-bar { background: white; padding: 12px; position: sticky; top: 56px; z-index: 99; }
+        .item-card { background: white; border-radius: 8px; padding: 10px; border: 1px solid #eee; height: 100%; }
+        .item-img { width: 100%; height: 120px; object-fit: cover; border-radius: 6px; }
+        .not-found { text-align: center; padding: 40px; color: #888; width: 100%; }
+    </style>
+</head>
+<body>
+
+    <nav class="navbar sticky-top px-3">
+        <button class="btn border-0" onclick="toggleMenu()"><i class="fas fa-bars fs-4"></i></button>
+        <div class="fw-bold fs-5 text-success mx-auto">UoK <span class="text-dark">TRACK</span></div>
+        <div class="dropdown" id="notifDropdown">
+            <i class="fas fa-bell fs-5 text-muted" id="bell" data-bs-toggle="dropdown" onclick="markAsRead()"></i>
+            <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" id="count" style="font-size:8px">0</span>
+            <ul id="notif-box" class="dropdown-menu dropdown-menu-end shadow border-0 p-2" style="width:280px;"></ul>
+        </div>
+    </nav>
+
+    <div id="sidebar" class="sidebar">
+        <div class="p-4 border-bottom bg-light d-flex justify-content-between align-items-center">
+            <span class="fw-bold">MAIN MENU</span>
+            <i class="fas fa-times" onclick="toggleMenu()"></i>
+        </div>
+        <a href="index.html" class="p-3 border-bottom d-block text-decoration-none text-dark"><i class="fas fa-home me-3 text-success"></i>Home Dashboard</a>
+        <a href="report-lost.html" class="p-3 border-bottom d-block text-decoration-none text-dark"><i class="fas fa-plus-circle me-3 text-success"></i>Report Item</a>
+        <a href="login.html" class="p-3 d-block text-decoration-none text-danger mt-5"><i class="fas fa-sign-out-alt me-3"></i>Sign Out</a>
+    </div>
+
+    <div class="search-bar shadow-sm mb-3">
+        <div class="input-group bg-light rounded-pill px-3 py-1">
+            <i class="fas fa-search text-muted mt-2 me-2"></i>
+            <input type="text" id="srch" class="form-control border-0 bg-transparent" placeholder="Search by name or category..." onkeyup="filterData()">
+        </div>
+    </div>
+
+    <div class="container">
+        <h6 class="fw-bold text-muted mb-3 small" id="grid-header">DISCOVERED ITEMS</h6>
+        <div id="item-grid" class="row g-2">
+            </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let allData = [];
+        function toggleMenu() { document.getElementById('sidebar').classList.toggle('active'); }
+
+        // Notification Logic
+        function loadData() {
+            fetch('/api/items').then(r => r.json()).then(data => { allData = data; render(data); });
+            fetch('/api/notifications').then(r => r.json()).then(data => {
+                document.getElementById('count').innerText = data.length;
+                if(data.length === 0) {
+                    document.getElementById('notif-box').innerHTML = '<li class="small p-2 text-center text-muted">No new alerts</li>';
+                } else {
+                    document.getElementById('notif-box').innerHTML = data.map(n => `<li class="small p-2 border-bottom">${n.message}</li>`).join('');
+                }
+            });
+        }
+
+        // Search Rendering with "Not Found" logic
+        function render(data) {
+            const grid = document.getElementById('item-grid');
+            const header = document.getElementById('grid-header');
+            
+            if (data.length === 0) {
+                header.style.display = 'none';
+                grid.innerHTML = `<div class="not-found">
+                    <i class="fas fa-search mb-3 fs-1"></i>
+                    <p class="fw-bold">Not available at the moment</p>
+                    <span class="small">Try a different keyword or category</span>
+                </div>`;
+            } else {
+                header.style.display = 'block';
+                grid.innerHTML = data.map(i => `
+                    <div class="col-6">
+                        <div class="item-card shadow-sm">
+                            <img src="/uploads/${i.image_url}" class="item-img" onerror="this.src='https://via.placeholder.com/150'">
+                            <div class="mt-2 text-truncate small fw-bold">${i.item_name}</div>
+                            <div class="text-muted small" style="font-size:10px;">${i.location}</div>
+                            <button class="btn btn-success btn-sm w-100 mt-2 fw-bold" style="font-size:10px" onclick="claimReq(${i.id}, '${i.item_name}')">CLAIM NOW</button>
+                        </div>
+                    </div>
+                `).join('');
+            }
+        }
+
+        function filterData() {
+            const val = document.getElementById('srch').value.toLowerCase();
+            const filtered = allData.filter(i => i.item_name.toLowerCase().includes(val) || (i.category && i.category.toLowerCase().includes(val)));
+            render(filtered);
+        }
+
+        // Clear Notification Badge when clicked
+        function markAsRead() {
+            document.getElementById('count').style.display = 'none';
+        }
+
+        function claimReq(id, name) {
+            alert(`REQUIREMENT:\nTo claim "${name}", visit Security with your SCHOOL ID and PHOTO EVIDENCE.`);
+            let date = prompt("Set Verification Date (e.g. Tomorrow 11AM):");
+            if(date) {
+                fetch('/api/book-appointment', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: `item_id=${id}&student_name=Student&appt_date=${date}`
+                }).then(() => alert("Appointment Set. Security has been notified."));
+            }
+        }
+        window.onload = loadData;
+    </script>
+</body>
+</html>
+

@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>UoK - Welcome</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <style>
+        body { background: #f4f7f6; height: 100vh; display: flex; align-items: center; }
+        .auth-card { border-radius: 15px; border: none; }
+        .nav-pills .nav-link.active { background-color: #003366; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-5">
+            <div class="card shadow auth-card p-4">
+                <h2 class="text-center mb-4" style="color: #003366;">UoK Portal</h2>
+                
+                <ul class="nav nav-pills nav-justified mb-4" id="pills-tab" role="tablist">
+                    <li class="nav-item"><button class="nav-link active" id="tab-login" data-bs-toggle="pill" data-bs-target="#login-sect">Login</button></li>
+                    <li class="nav-item"><button class="nav-link" id="tab-signup" data-bs-toggle="pill" data-bs-target="#signup-sect">Sign Up</button></li>
+                </ul>
+
+                <div class="tab-content">
+                    <div class="tab-pane fade show active" id="login-sect">
+                        <form action="/login" method="POST">
+                            <div class="mb-3"><input type="text" name="username" class="form-control" placeholder="Username" required></div>
+                            <div class="mb-3"><input type="password" name="password" class="form-control" placeholder="Password" required></div>
+                            <button type="submit" class="btn btn-primary w-100" style="background: #003366;">Login</button>
+                        </form>
+                        <div class="text-center mt-3"><a href="/forgot-password.html" class="small text-muted">Forgot Password?</a></div>
+                    </div>
+
+                    <div class="tab-pane fade" id="signup-sect">
+                        <form action="/signup" method="POST">
+                            <div class="mb-3"><input type="text" name="username" class="form-control" placeholder="Choose Username" required></div>
+                            <div class="mb-3"><input type="password" name="password" class="form-control" placeholder="Create Password" required></div>
+                            <button type="submit" class="btn btn-success w-100">Create Account</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
