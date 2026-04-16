@@ -29,12 +29,9 @@ const db = mysql.createConnection({
     host: 'mysql-3f560227-songolian2-f64d.b.aivencloud.com',
     port: 27591,
     user: 'avnadmin',
-    // We use process.env to hide the password from GitHub's scanners
-    password: process.env.DB_PASSWORD, 
+    password: process.env.DB_PASSWORD, // Set this in Render Dashboard -> Environment
     database: 'defaultdb',
-    ssl: {
-        rejectUnauthorized: false
-    }
+    ssl: { rejectUnauthorized: false }
 });
 
 db.connect((err) => {
@@ -45,7 +42,7 @@ db.connect((err) => {
     console.log('✅ Connected to Aiven Cloud Database');
 });
 
-// --- AUTHENTICATION ---
+// --- ROUTES ---
 app.post('/login', (req, res) => {
     const { username, password } = req.body;
     db.query("SELECT * FROM users WHERE username = ? AND password = ?", [username, password], (err, results) => {
@@ -54,12 +51,11 @@ app.post('/login', (req, res) => {
             req.session.user = username;
             res.redirect('/index.html');
         } else {
-            res.send("<script>alert('Invalid Login Credentials'); window.location='/login.html';</script>");
+            res.send("<script>alert('Invalid Login'); window.location='/login.html';</script>");
         }
     });
 });
 
-// --- CORE SYSTEM LOGIC ---
 app.post('/report-item', upload.single('item_image'), (req, res) => {
     const { item_name, status, location, description, category } = req.body;
     const img = req.file ? req.file.filename : null;
@@ -83,7 +79,7 @@ app.get('/api/notifications', (req, res) => {
     });
 });
 
-// --- DYNAMIC PORT FOR DEPLOYMENT ---
+// --- START SERVER ---
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, '0.0.0.0', () => {
     console.log(`🚀 UoK System Live on Port ${PORT}`);
