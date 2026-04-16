@@ -29,7 +29,7 @@ const db = mysql.createConnection({
     host: 'mysql-3f560227-songolian2-f64d.b.aivencloud.com',
     port: 27591,
     user: 'avnadmin',
-    password: 'AVNS_eEQaza6OWluGkarMM6X',
+    password: process.env.DB_PASSWORD,
     database: 'defaultdb',
     ssl: {
         rejectUnauthorized: false // Required for Aiven SSL
